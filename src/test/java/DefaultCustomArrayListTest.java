@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class DefaultCustomArrayListTest {
 
     private CustomArrayList<Integer> list;
+    // private CustomArrayList<String> list1;
 
     @BeforeEach
     public void setUp() {

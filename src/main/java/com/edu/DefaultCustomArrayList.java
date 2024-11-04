@@ -4,51 +4,70 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 public class DefaultCustomArrayList<E> implements CustomArrayList<E> {
-    private static final int DEFAULT_VOLUME = 10;
+    private static final int DEFAULT_CAPACITY = 10;
     private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
-    static Object elementsData[];
-    static int countData;
+    E elementsData[];
+    static int sizeData;
 
+    @SuppressWarnings("unchecked")
     public DefaultCustomArrayList() {
-       elementsData = new Object[DEFAULT_VOLUME];
-       countData = 0;
+       elementsData = (E[]) new Object[DEFAULT_CAPACITY];
+       sizeData = 0;
     }
 
     @Override
     public boolean add(E element) {
-        int minVolume = countData + 1;
-        checkAvailableVolume(minVolume);
-        elementsData[countData] = element;
-
+        int minSize = sizeData + 1;
+        checkAvailableSize(minSize);
+        elementsData[sizeData] = element;
+        sizeData++;
         return true;
     }
 
-    private void checkAvailableVolume(int minVolume) {
-        if (minVolume - elementsData.length > 0) {
-            grow(minVolume);
+    private void checkAvailableSize(int minSize) {
+        if (minSize - elementsData.length > 0) {
+            grow(minSize);
         }
     }
 
-    private void grow(int minVolume) {
-        int oldVolume = elementsData.length;
-        int newVolume = oldVolume +(oldVolume >> 1);
-        if  (newVolume - MAX_ARRAY_SIZE > 0) {
-            newVolume = maxVolume(minVolume);
+    private void grow(int minSize) {
+        int oldSize = elementsData.length;
+        int newSize = oldSize +(oldSize >> 1);
+        if  (newSize - MAX_ARRAY_SIZE > 0) {
+            newSize = maxVolume(minSize);
         }
 
-        elementsData = Arrays.copyOf(elementsData, newVolume);
+        elementsData = Arrays.copyOf(elementsData, newSize);
     }
 
-    private int maxVolume(int minVolume) {
-        if ( minVolume < 0) {
+    private int maxVolume(int minSize) {
+        if ( minSize < 0) {
             throw new OutOfMemoryError("Limit arrays elements");
         }
-        return (minVolume > MAX_ARRAY_SIZE) ? Integer.MAX_VALUE : MAX_ARRAY_SIZE;
+        return (minSize > MAX_ARRAY_SIZE) ? Integer.MAX_VALUE : MAX_ARRAY_SIZE;
     }
 
     @Override
     public boolean remove(E element) {
+        for (int i = 0; i < sizeData; i++) {
+            if (elementsData[i].equals(element)) {
+                for (int j = i + 1; j < sizeData; j++) {
+                  elementsData[i] = elementsData[j];
+                }
+                sizeData--;
+                int minSize = sizeData;
+                cut(minSize);
+                return true;
+            }
+        }
         return false;
+    }
+    
+    private void cut(int minSize) {
+        int optimumSize = elementsData.length - elementsData.length/2;
+        if (minSize < optimumSize ) {
+            elementsData = Arrays.copyOf(elementsData, optimumSize);
+        }
     }
 
     private void remove(int index) {
@@ -56,17 +75,20 @@ public class DefaultCustomArrayList<E> implements CustomArrayList<E> {
 
     @Override
     public E get(int index) {
-        return null;
+        return elementsData[index];
     }
 
     @Override
     public int size() {
-        return 0;
+        return sizeData;
     }
 
     @Override
     public boolean isEmpty() {
-        return false;
+        if (sizeData > 0) {
+            return false;
+        }
+        return true;
     }
 
     @Override
