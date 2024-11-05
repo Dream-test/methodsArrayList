@@ -79,11 +79,17 @@ public class DefaultCustomArrayListTest {
     public void testIterator() {
         list.add(1);
         list.add(2);
+        list.add(3);
         Iterator<Integer> iterator = list.iterator();
         assertTrue(iterator.hasNext());
         assertEquals(1, iterator.next());
         assertTrue(iterator.hasNext());
         assertEquals(2, iterator.next());
+        assertTrue(iterator.hasNext());
+        assertEquals(3, iterator.next());
+        iterator.remove();
+        assertEquals(2, list.size());
+        assertFalse(list.contains(3));
         assertFalse(iterator.hasNext());
     }
 
