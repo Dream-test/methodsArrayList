@@ -40,6 +40,18 @@ public class DefaultCustomArrayListTest {
     }
 
     @Test
+    public void testRemoveWithShorted() {
+        for (int i = 1; i < 18; i++) {
+            list.add(i);
+        }
+        for (int j = 17; j > 8; j--) {
+            assertTrue(list.remove(j));
+        }
+        assertEquals(8, list.size());
+        assertEquals(10, list.listSize());
+    }
+
+    @Test
     public void testClear() {
         list.add(1);
         list.add(2);

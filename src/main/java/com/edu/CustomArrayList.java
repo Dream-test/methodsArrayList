@@ -10,4 +10,5 @@ public interface CustomArrayList<E> extends Iterable<E> {
     void clear();
     boolean contains(E element);
     Iterator<E> iterator();
+    int listSize();
 }
