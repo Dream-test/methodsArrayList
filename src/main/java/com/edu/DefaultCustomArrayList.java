@@ -1,7 +1,9 @@
 package com.edu;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 public class DefaultCustomArrayList<E> implements CustomArrayList<E> {
     private static final int DEFAULT_CAPACITY = 10;
@@ -34,13 +36,13 @@ public class DefaultCustomArrayList<E> implements CustomArrayList<E> {
         int oldSize = elementsData.length;
         int newSize = oldSize +(oldSize >> 1);
         if  (newSize - MAX_ARRAY_SIZE > 0) {
-            newSize = maxVolume(minSize);
+            newSize = maxSize(minSize);
         }
 
         elementsData = Arrays.copyOf(elementsData, newSize);
     }
 
-    private int maxVolume(int minSize) {
+    private int maxSize(int minSize) {
         if ( minSize < 0) {
             throw new OutOfMemoryError("Limit arrays elements");
         }
@@ -55,8 +57,7 @@ public class DefaultCustomArrayList<E> implements CustomArrayList<E> {
                   elementsData[i] = elementsData[j];
                 }
                 sizeData--;
-                int minSize = sizeData;
-                cut(minSize);
+                cut(sizeData);
                 return true;
             }
         }
@@ -64,17 +65,28 @@ public class DefaultCustomArrayList<E> implements CustomArrayList<E> {
     }
     
     private void cut(int minSize) {
-        int optimumSize = elementsData.length - elementsData.length/2;
+        int optimumSize = elementsData.length - elementsData.length/3;
         if (minSize < optimumSize ) {
             elementsData = Arrays.copyOf(elementsData, optimumSize);
         }
     }
 
     private void remove(int index) {
+        if (index >= sizeData) {
+            throw new IndexOutOfBoundsException("Index hasn't data element");
+        }
+        for (int i = index; i < (sizeData - 1); i++) {
+            elementsData[i] = elementsData[i + 1];
+            sizeData--;
+            cut(sizeData);
+        };
     }
 
     @Override
     public E get(int index) {
+        if (index >= sizeData) {
+            throw new IndexOutOfBoundsException("Index hasn't data element");
+        }
         return elementsData[index];
     }
 
@@ -91,17 +103,48 @@ public class DefaultCustomArrayList<E> implements CustomArrayList<E> {
         return true;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void clear() {
+         elementsData = (E[]) new Object[DEFAULT_CAPACITY];
+         sizeData = 0;
     }
 
     @Override
     public boolean contains(E element) {
+        for (int i = 0; i < sizeData; i++) {
+            if (element.equals(elementsData[i])) {
+                return true;
+            }
+        }
         return false;
     }
 
+
     @Override
     public Iterator<E> iterator() {
-        return null;
+        return new CustomIterator();
+    }
+
+    private class CustomIterator implements Iterator<E> {
+        private int dataIndex = 0;
+
+        @Override
+        public boolean hasNext() {
+            return dataIndex < sizeData;
+        }
+
+        @Override
+        public E next() {
+            if (dataIndex > sizeData) {
+                throw new NoSuchElementException("Index out of elementsData index interval");
+            }
+            return elementsData[dataIndex++];
+        }
+    }
+
+    @Override
+    public int listSize() {
+        return elementsData.length;
     }
 }
