@@ -53,11 +53,7 @@ public class DefaultCustomArrayList<E> implements CustomArrayList<E> {
     public boolean remove(E element) {
         for (int i = 0; i < sizeData; i++) {
             if (elementsData[i].equals(element)) {
-                for (int j = i + 1; j < sizeData; j++) {
-                  elementsData[i] = elementsData[j];
-                }
-                sizeData--;
-                cut(sizeData);
+                remove(i);
                 return true;
             }
         }
@@ -75,11 +71,12 @@ public class DefaultCustomArrayList<E> implements CustomArrayList<E> {
         if (index >= sizeData) {
             throw new IndexOutOfBoundsException("Index hasn't data element");
         }
-        for (int i = index; i < (sizeData - 1); i++) {
+        System.arraycopy(elementsData, index + 1, elementsData, index, sizeData - index - 1);
+        /* for (int i = index; i < (sizeData - 1); i++) {
             elementsData[i] = elementsData[i + 1];
-            sizeData--;
-            cut(sizeData);
-        };
+        } */
+        elementsData[sizeData--] = null;
+        cut(sizeData);
     }
 
     @Override
@@ -120,7 +117,6 @@ public class DefaultCustomArrayList<E> implements CustomArrayList<E> {
         return false;
     }
 
-
     @Override
     public Iterator<E> iterator() {
         return new CustomIterator();
@@ -128,6 +124,7 @@ public class DefaultCustomArrayList<E> implements CustomArrayList<E> {
 
     private class CustomIterator implements Iterator<E> {
         private int dataIndex = 0;
+        private int lastReturnIndex = -1;
 
         @Override
         public boolean hasNext() {
@@ -136,11 +133,25 @@ public class DefaultCustomArrayList<E> implements CustomArrayList<E> {
 
         @Override
         public E next() {
-            if (dataIndex > sizeData) {
+            if (dataIndex >= sizeData) {
                 throw new NoSuchElementException("Index out of elementsData index interval");
             }
+            lastReturnIndex = dataIndex;
             return elementsData[dataIndex++];
         }
+
+        @Override
+        public void remove() {
+            if (lastReturnIndex < 0) {
+                throw new IllegalStateException("remove() called before next(), or called twice.");
+            }
+            System.arraycopy(elementsData, lastReturnIndex + 1, elementsData, lastReturnIndex, sizeData - lastReturnIndex - 1);
+            elementsData[sizeData--] = null;
+            cut(sizeData);
+            dataIndex = lastReturnIndex;
+            lastReturnIndex = -1;
+        }
+
     }
 
     @Override
