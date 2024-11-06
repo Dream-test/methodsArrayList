@@ -19,7 +19,7 @@ public class DefaultCustomArrayList<E> implements CustomArrayList<E> {
     @Override
     public boolean add(E element) {
         int requiredSize = sizeData + 1; // устанавливает необходимый минимум массива для размещения данных
-        if (canAdd(requiredSize)) { // проверяет выход на максимальный размер массива, при превышении возвращает false
+        if (!canAdd(requiredSize)) { // проверяет выход на максимальный размер массива, при превышении возвращает false
             return false;
         }
         if (!hasAvailableSize(requiredSize)) { // проверяет наличие необходимого для записи данных места в буфере
@@ -31,7 +31,7 @@ public class DefaultCustomArrayList<E> implements CustomArrayList<E> {
     }
 
     private boolean canAdd(int requiredSize) { //проверяет не достиг ли необходимый минимум массива максимально возможного значения
-        return requiredSize == Integer.MAX_VALUE;
+        return requiredSize < Integer.MAX_VALUE;
     }
 
     private boolean hasAvailableSize(int requiredSize) { // проверяет наличие необходимого для записи данных места в буфере
