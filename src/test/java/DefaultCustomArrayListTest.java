@@ -96,8 +96,6 @@ public class DefaultCustomArrayListTest {
     @Test
     public void testGetWithIndexOutOfBoundShouldThrowException() {
         list.add(1);
-        assertThrows(IndexOutOfBoundsException.class, () -> {
-            list.get(5);
-        });
+        assertThrows(IndexOutOfBoundsException.class, () -> list.get(5));
     }
 }
