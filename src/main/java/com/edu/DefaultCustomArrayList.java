@@ -1,6 +1,5 @@
 package com.edu;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -8,45 +7,53 @@ import java.util.NoSuchElementException;
 public class DefaultCustomArrayList<E> implements CustomArrayList<E> {
     private static final int DEFAULT_CAPACITY = 10;
     private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
-    E elementsData[];
+    E[] elementsData;
     static int sizeData;
 
     @SuppressWarnings("unchecked")
     public DefaultCustomArrayList() {
-       elementsData = (E[]) new Object[DEFAULT_CAPACITY];
+       elementsData = (E[]) new Object[DEFAULT_CAPACITY]; //создает массив с типом E и начальным размером
        sizeData = 0;
     }
 
     @Override
     public boolean add(E element) {
-        int minSize = sizeData + 1;
-        checkAvailableSize(minSize);
-        elementsData[sizeData] = element;
-        sizeData++;
-        return true;
-    }
-
-    private void checkAvailableSize(int minSize) {
-        if (minSize - elementsData.length > 0) {
-            grow(minSize);
+        int requiredSize = sizeData + 1; // устанавливает необходимый минимум массива для размещения данных
+        if (canAdd(requiredSize)) { // проверяет выход на максимальный размер массива, при превышении возвращает false
+            return false;
         }
+        if (!hasAvailableSize(requiredSize)) { // проверяет наличие необходимого для записи данных места в буфере
+            grow(requiredSize); // увеличивает длину массива если проверка вернула false
+        }
+        elementsData[sizeData] = element; // добавляет элемент в массив
+        sizeData++; // увеличивает счетчик данных
+        return true; // возвращает true при успешной записи элемента в массив
     }
 
-    private void grow(int minSize) {
+    private boolean canAdd(int requiredSize) { //проверяет не достиг ли необходимый минимум массива максимально возможного значения
+        return requiredSize == Integer.MAX_VALUE;
+    }
+
+    private boolean hasAvailableSize(int requiredSize) { // проверяет наличие необходимого для записи данных места в буфере
+        return requiredSize < elementsData.length;
+    }
+
+    private void grow(int requiredSize) { // увеличивает длину массива до следующей границы буфера либо до максимальной длины при ее достижении
         int oldSize = elementsData.length;
         int newSize = oldSize +(oldSize >> 1);
         if  (newSize - MAX_ARRAY_SIZE > 0) {
-            newSize = maxSize(minSize);
+            newSize = maxSize(requiredSize);
         }
 
         elementsData = Arrays.copyOf(elementsData, newSize);
     }
 
-    private int maxSize(int minSize) {
-        if ( minSize < 0) {
+    private int maxSize(int requiredSize) {
+        if ( requiredSize < 0) {
             throw new OutOfMemoryError("Limit arrays elements");
         }
-        return (minSize > MAX_ARRAY_SIZE) ? Integer.MAX_VALUE : MAX_ARRAY_SIZE;
+        System.out.println("Warning: Required size exceeds MAX_ARRAY_SIZE. Setting to Integer.MAX_VALUE.");
+        return (requiredSize > MAX_ARRAY_SIZE) ? Integer.MAX_VALUE : MAX_ARRAY_SIZE;
     }
 
     @Override
@@ -60,9 +67,9 @@ public class DefaultCustomArrayList<E> implements CustomArrayList<E> {
         return false;
     }
     
-    private void cut(int minSize) {
+    private void cut(int sizeData) {
         int optimumSize = elementsData.length - elementsData.length/3;
-        if (minSize < optimumSize ) {
+        if (sizeData < optimumSize ) {
             elementsData = Arrays.copyOf(elementsData, optimumSize);
         }
     }
@@ -72,9 +79,6 @@ public class DefaultCustomArrayList<E> implements CustomArrayList<E> {
             throw new IndexOutOfBoundsException("Index hasn't data element");
         }
         System.arraycopy(elementsData, index + 1, elementsData, index, sizeData - index - 1);
-        /* for (int i = index; i < (sizeData - 1); i++) {
-            elementsData[i] = elementsData[i + 1];
-        } */
         elementsData[sizeData--] = null;
         cut(sizeData);
     }
@@ -83,6 +87,8 @@ public class DefaultCustomArrayList<E> implements CustomArrayList<E> {
     public E get(int index) {
         if (index >= sizeData) {
             throw new IndexOutOfBoundsException("Index hasn't data element");
+        } else if (index < 0) {
+            throw new IndexOutOfBoundsException("Wrong Index < 0");
         }
         return elementsData[index];
     }
@@ -94,10 +100,7 @@ public class DefaultCustomArrayList<E> implements CustomArrayList<E> {
 
     @Override
     public boolean isEmpty() {
-        if (sizeData > 0) {
-            return false;
-        }
-        return true;
+        return sizeData <= 0;
     }
 
     @SuppressWarnings("unchecked")
