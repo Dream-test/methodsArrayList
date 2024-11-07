@@ -74,7 +74,7 @@ public class DefaultCustomArrayList<E> implements CustomArrayList<E> {
         return false;
     }
     
-    private void cut(int sizeData) {
+    private void cut() {
         int optimumSize = elementsData.length - elementsData.length/3;
         if (sizeData < optimumSize ) {
             elementsData = Arrays.copyOf(elementsData, optimumSize);
@@ -87,7 +87,7 @@ public class DefaultCustomArrayList<E> implements CustomArrayList<E> {
         }
         System.arraycopy(elementsData, index + 1, elementsData, index, sizeData - index - 1);
         elementsData[sizeData--] = null;
-        cut(sizeData);
+        cut();
     }
 
     @Override
@@ -157,7 +157,7 @@ public class DefaultCustomArrayList<E> implements CustomArrayList<E> {
             }
             System.arraycopy(elementsData, lastReturnIndex + 1, elementsData, lastReturnIndex, sizeData - lastReturnIndex - 1);
             elementsData[sizeData--] = null;
-            cut(sizeData);
+            cut();
             dataIndex = lastReturnIndex;
             lastReturnIndex = -1;
         }
