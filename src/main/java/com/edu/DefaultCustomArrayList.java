@@ -8,7 +8,7 @@ public class DefaultCustomArrayList<E> implements CustomArrayList<E> {
     private static final int DEFAULT_CAPACITY = 10;
     private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
     E[] elementsData;
-    static int sizeData;
+    private int sizeData;
 
     @SuppressWarnings("unchecked")
     public DefaultCustomArrayList() {
@@ -18,6 +18,9 @@ public class DefaultCustomArrayList<E> implements CustomArrayList<E> {
 
     @Override
     public boolean add(E element) {
+        if (element == null) {
+            throw new NullPointerException("Element cannot be null");
+        }
         int requiredSize = sizeData + 1; // устанавливает необходимый минимум массива для размещения данных
         if (!canAdd(requiredSize)) { // проверяет выход на максимальный размер массива, при превышении возвращает false
             return false;
@@ -40,8 +43,12 @@ public class DefaultCustomArrayList<E> implements CustomArrayList<E> {
 
     private void grow(int requiredSize) { // увеличивает длину массива до следующей границы буфера либо до максимальной длины при ее достижении
         int oldSize = elementsData.length;
-        int newSize = oldSize +(oldSize >> 1);
+        int newSize = Math.min((oldSize + (oldSize >>1)), MAX_ARRAY_SIZE);
+        /* int newSize = oldSize +(oldSize >> 1);
         if  (newSize - MAX_ARRAY_SIZE > 0) {
+            newSize = maxSize(requiredSize);
+        } */
+        if (requiredSize > newSize) {
             newSize = maxSize(requiredSize);
         }
 
@@ -60,7 +67,7 @@ public class DefaultCustomArrayList<E> implements CustomArrayList<E> {
     public boolean remove(E element) {
         for (int i = 0; i < sizeData; i++) {
             if (elementsData[i].equals(element)) {
-                remove(i);
+                removeAtIndex(i);
                 return true;
             }
         }
@@ -74,7 +81,7 @@ public class DefaultCustomArrayList<E> implements CustomArrayList<E> {
         }
     }
 
-    private void remove(int index) {
+    private void removeAtIndex(int index) {
         if (index >= sizeData) {
             throw new IndexOutOfBoundsException("Index hasn't data element");
         }
